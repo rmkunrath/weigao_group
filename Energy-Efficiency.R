@@ -1,14 +1,17 @@
 # https://cran.r-project.org/
 # https://www.rstudio.com/
 
+# https://github.com/rmkunrath/weigao_group
+
+# https://rafalab.github.io/dsbook/
+
+# https://www.edx.org/professional-certificate/harvardx-data-science
 
 # packages required
-
 if(!require(tidyverse)) install.packages("tidyverse", repos = "http://cran.us.r-project.org")
 if(!require(caret)) install.packages("caret", repos = "http://cran.us.r-project.org")
 if(!require(randomForest)) install.packages("randomForest", repos = "http://cran.us.r-project.org")
 if(!require(readxl)) install.packages("readxl", repos = "http://cran.us.r-project.org")
-
 
 # import .xlsx file
 data <- read_excel("data.xlsx")
