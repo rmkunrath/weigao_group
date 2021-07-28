@@ -1,3 +1,7 @@
+# https://cran.r-project.org/
+# https://www.rstudio.com/
+
+
 # packages required
 
 if(!require(tidyverse)) install.packages("tidyverse", repos = "http://cran.us.r-project.org")
