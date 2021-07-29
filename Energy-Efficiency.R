@@ -60,7 +60,7 @@ rm(my_cols, upper.panel)
 #set seed to 1
 set.seed(1, sample.kind = "Rounding")
 
-# Droping cooling_load - it is correlated
+# Droping cooling_load - it is correlated. Association is not causation!
 data$cooling_load <- NULL
 
 # Split energydat into test and train set. evaluation set will be 10% of energydat data set
@@ -74,6 +74,8 @@ rm(data, index)
 
 # define function for computing RMSE for vectors of rating and corresponding predictors
 RMSE <- function(true_load, predicted_load){sqrt(mean((true_load - predicted_load)^2))}
+
+# https://en.wikipedia.org/wiki/Root-mean-square_deviation
 
 ############################
 # Model 1: Using the average
@@ -96,7 +98,7 @@ RMSE_results
 # https://topepo.github.io/caret/available-models.html
 
 # We select a set of suitable models and store them into the "models" variable.
-models <- c("lm", "glm", "knn", "Rborist")
+models <- c("lm", "glm", "knn", "rpart", "Rborist")
 
 # In the following steps, the selected models are fitted first. Afterwards
 # predictions are made as part of an sapply statement. Finally, we will
@@ -133,6 +135,11 @@ RMSE_results <- bind_rows(RMSE_results,
                           data.frame(Model ="Knn",  
                                      RMSE = knn_RSME))
 
+decisiont_RSME <- RMSE(test$heating_load, predictions$rpart.model)
+RMSE_results <- bind_rows(RMSE_results,
+                          data.frame(Model ="Decision Tree",  
+                                     RMSE = decisiont_RSME))
+
 rforest_RSME <- RMSE(test$heating_load, predictions$Rborist.model)
 RMSE_results <- bind_rows(RMSE_results,
                           data.frame(Model ="Random Forest",  
@@ -141,4 +148,22 @@ RMSE_results <- bind_rows(RMSE_results,
 
 RMSE_results #print RMSE table
 
+view(test %>% mutate(prediction_ln = predictions$lm.model))
+view(test %>% mutate(prediction_rf = predictions$Rborist.model))
 
+# comparison
+dt <- test %>% mutate(prediction_rf = predictions$Rborist.model)
+dt %>% ggplot(aes(heating_load, prediction_rf)) +
+  geom_point()
+
+# Decision tree x random forest
+fit <- train(heating_load ~ ., method = "rpart", data = train)
+plot(fit$finalModel, margin = 0.1)
+text(fit$finalModel, cex = 0.75)
+
+view(test %>% mutate(prediction_rpart = predictions$rpart.model))
+
+# https://rafalab.github.io/dsbook/examples-of-algorithms.html#random-forests
+
+# see the element size
+fit <- train(heating_load ~ ., method = "Rborist", data = train)
